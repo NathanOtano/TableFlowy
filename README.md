@@ -10,32 +10,19 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
 # Features
 
-1. Auto-Loading: Scrolls to the bottom repeatedly until no more bullets appear. Scroll Back to Top: Once everything is loaded, the script scrolls you back to the top so you can see the new table immediately.
-2. Table Generation: Builds a table for all bullets containing special tags:
+1. Table Generation: Builds a table for all bullets containing special tags:
     - #p<number> or #P<number> → recognized as property “P” and the digit(s) as the value.
     - #property-value → splits on the first dash; e.g. #task-todo → property = “task,” value = “todo.”
     - All other tags remain in a “Tags” column.
-3. Columns:
+2. Columns:
     - Parent: Shows the parent bullet name (tags stripped), clickable to focus that parent.
     - Bullet: The bullet’s text, clickable to focus that bullet.
     - Tags: Any leftover tags that aren’t in the property-value formats above.
     - One Column per Unique Property: Contains the matched value for that bullet.
-4. Sorting: Click any column header to sort ascending; click again to sort descending.
-5. Filtering:
+3. Sorting: Click any column header to sort ascending; click again to sort descending.
+4. Filtering:
     - Per-column filters: One text box under each header to filter that column.
     - Global filter box: Filters across all columns at once.
-6. Toggle All Tables Visibility Button: A main table button that hides all existing tables (including their top bars) when clicked if they are visible, and shows them if they are hidden. If no tables exist, it creates a new one.
-7. Add Table Button: A new button with a Lucide `<Plus />` icon added to the right of the close (`x`) button in each table's top bar. Clicking this button adds a new table on top of existing ones and ensures that hidden tables are shown.
-8. Refresh Table Functionality: The refresh button now removes the specific table where it was clicked and creates a new one in its place instead of stacking multiple tables.
-9. Icon Updates:
-    - Replaced the collapse icon with `chevrons-down-up`.
-    - Replaced the close table icon with a simple `x` button.
-10. Remove Screen Freezing: The overlay that previously froze the screen during table creation has been removed for a smoother experience.
-11. Responsive Behavior:
-    - **Toggle Visibility**: Main table button hides/shows all tables completely.
-    - **Add Table**: Adds a new table on top of existing ones and shows all tables if they were hidden.
-    - **Refresh Table**: Removes the specific table being refreshed and creates a new one in its place.
-    - **Close Table**: Completely removes the specific table from the DOM.
 
 # Installation
 
@@ -50,8 +37,8 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 1. Navigate to the Workflowy page that has your outline.
 2. Click the bookmark.
 3. The script:
-    - Toggles visibility of all existing tables or creates a new one if none exist.
-    - Adds the main table button if not already present.
+    - Adds the main table button in the menu bar, if not already present.
+    - Clicking on it toggles visibility of all existing tables or creates a new one if none exist.
 4. Interact with the table:
     - Sort columns by clicking a header (toggles asc/desc).
     - Filter with textboxes below headers (per-column) or via the global filter (all columns).
