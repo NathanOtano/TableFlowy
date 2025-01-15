@@ -6,7 +6,7 @@ It looks only to visible bullet (not collapsed, not hidden) so make sure to "exp
 
 This is a function I deeply missed in workflowy. Would be nice to have queries like that natively
 
-https://github.com/user-attachments/assets/500c1e3e-4b94-45ac-8d44-2816be62e204
+https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
 # Features
 
