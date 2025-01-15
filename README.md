@@ -37,7 +37,7 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
 # Usage
 
-1. Navigate to the Workflowy (or derivative) page that has your outline.
+1. Navigate to the Workflowy page that has your outline.
 2. Click the bookmark.
 3. The script:
     - Builds a table of bullets that match the special-tag criteria.
