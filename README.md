@@ -41,7 +41,7 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 2. Click the bookmark.
 3. The script:
     - Builds a table of bullets that match the special-tag criteria.
-    - Inserts the table above your top bullet (one that has projectid and classes project, root, selected).
+    - Inserts the table above your top bullet.
 4. Interact with the table:
     - Sort columns by clicking a header (toggles asc/desc).
     - Filter with textboxes below headers (per-column) or via the global filter (all columns).
