@@ -8,7 +8,7 @@ This is a function I deeply missed in workflowy. Would be nice to have queries l
 
 https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
-(video not up to date, I added some icons and functionnalities desribed below)
+(video not up to date, I added some functionnalities desribed below)
 
 # Features
 
