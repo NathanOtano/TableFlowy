@@ -2,7 +2,7 @@ Hey all! :)
 Here is a simple bookmarklet creating a table with sortable columns and filters on top of current view  
 It lists only bullets including tags in the form of #property-value, using "-" as a divider between column name and the inline property
 
-It looks only to visible bullet (not collapsed, not hidden) so make sure to "expand all" before using it
+It looks only to visible bullets (not collapsed, not hidden) so make sure to "expand all" before using it
 
 This is a function I deeply missed in workflowy. Would be nice to have queries like that natively
 
