@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
 # Features
 
-1. Auto-Loading: Scrolls to the bottom repeatedly until no more bullets appear.
+1. Auto-Loading: Scrolls to the bottom repeatedly until no more bullets appear. Scroll Back to Top: Once everything is loaded, the script scrolls you back to the top so you can see the new table immediately.
 2. Table Generation: Builds a table for all bullets containing special tags:
     - #p<number> or #P<number> → recognized as property “P” and the digit(s) as the value.
     - #property-value → splits on the first dash; e.g. #task-todo → property = “task,” value = “todo.”
@@ -26,7 +26,6 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
     - Global filter box: Filters across all columns at once.
 6. Collapse Table button: Toggle the table’s visibility on/off.
 7. Close Table button: Removes the table entirely, restoring the page to normal.
-8. Scroll Back to Top: Once everything is loaded, the script scrolls you back to the top so you can see the new table immediately.
 
 # Installation
 
@@ -41,7 +40,6 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 1. Navigate to the Workflowy (or derivative) page that has your outline.
 2. Click the bookmark.
 3. The script:
-    - Automatically scrolls down in intervals, loading new bullets until none remain.
     - Builds a table of bullets that match the special-tag criteria.
     - Inserts the table above your top bullet (one that has projectid and classes project, root, selected).
     - Scrolls back to the top so you see the new table.
