@@ -20,12 +20,12 @@
      * @returns {Array|null} - An array with property and value or null if not a property tag.
      */
     function parseTag(tag) {
-        const cleanTag = tag.replace(/^#/, "");
-        if (/^[pP]\d+$/.test(cleanTag)) {
-            return ["P", cleanTag.replace(/^[pP]/, "")];
+        const cleanedTag = tag.replace(/^#/, "");
+        if (/^[pP]\d+$/.test(cleanedTag)) {
+            return ["P", cleanedTag.replace(/^[pP]/, "")];
         }
-        if (/^[^-\s]+-[^-\s]+$/.test(cleanTag)) {
-            const parts = cleanTag.split("-");
+        if (/^[^-\s]+-[^-\s]+$/.test(cleanedTag)) {
+            const parts = cleanedTag.split("-");
             return [parts[0], parts.slice(1).join("-")];
         }
         return null;
@@ -36,7 +36,7 @@
      * @param {string} text - The text containing tags.
      * @returns {string} - The text without tags.
      */
-    function getTextWithoutTags(text) {
+    function removeTags(text) {
         return text.replace(/#[^\s]+/g, "").trim();
     }
 
@@ -94,13 +94,13 @@
         }
 
         // Extract the table name from the selected bullet
-        const tableName = getTextWithoutTags(selectedBullet.querySelector(".innerContentContainer").textContent.trim());
+        const tableName = removeTags(selectedBullet.querySelector(".innerContentContainer").textContent.trim());
         console.log("Table Name:", tableName);
 
         // Select all bullets
         const bullets = document.querySelectorAll(".innerContentContainer");
         const tableData = [];
-        const propertiesSet = new Set();
+        const propertySet = new Set();
 
         if (!bullets.length) {
             showMessage("No bullets found!");
@@ -109,12 +109,12 @@
 
         // Process each bullet to extract relevant data
         bullets.forEach(bullet => {
-            const clone = bullet.cloneNode(true);
+            const clonedBullet = bullet.cloneNode(true);
             // Remove elements that should not be processed
-            clone.querySelectorAll("time.monolith-pill, span.contentTag[data-val^='@']").forEach(el => el.remove());
+            clonedBullet.querySelectorAll("time.monolith-pill, span.contentTag[data-val^='@']").forEach(el => el.remove());
 
             // Extract text and tags
-            let text = clone.textContent.trim();
+            let text = clonedBullet.textContent.trim();
             const tags = text.match(/#[^\s]+/g) || [];
             tags.forEach(tag => {
                 text = text.replace(tag, "").trim();
@@ -133,7 +133,7 @@
                 const parsed = parseTag(tag);
                 if (parsed) {
                     properties[parsed[0]] = parsed[1];
-                    propertiesSet.add(parsed[0]);
+                    propertySet.add(parsed[0]);
                 } else {
                     unformattedTags.push(tag);
                 }
@@ -146,7 +146,7 @@
             if (project) {
                 const parent = project.querySelector(".name .innerContentContainer");
                 if (parent) {
-                    parentName = getTextWithoutTags(parent.textContent.trim());
+                    parentName = removeTags(parent.textContent.trim());
                 }
                 const parentLink = project.querySelector(".name a.bullet");
                 if (parentLink) {
@@ -159,20 +159,23 @@
             const bulletHref = bulletLink ? bulletLink.getAttribute("href") : "";
 
             // Extract date
-            const dateEl = bullet.querySelector("time.monolith-pill");
-            const date = dateEl ? dateEl.textContent.trim() : "";
+            const dateElement = bullet.querySelector("time.monolith-pill");
+            const date = dateElement ? dateElement.textContent.trim() : "";
 
             // Extract mentions
-            const mentions = Array.from(bullet.querySelectorAll('span.contentTag[data-val^="@"]')).map(el => el.textContent.trim()).join(", ");
+            const mentionsElements = bullet.querySelectorAll('span.contentTag[data-val^="@"]');
+            const mentions = Array.from(mentionsElements).map(el => el.textContent.trim()).join(", ");
 
             // Extract backlinks
-            const backlinks = Array.from(bullet.querySelectorAll("a.contentLink")).map(link => {
-                return { text: link.textContent.trim(), url: link.getAttribute("href") || "" };
-            });
+            const backlinksElements = bullet.querySelectorAll("a.contentLink");
+            const backlinks = Array.from(backlinksElements).map(link => ({
+                text: link.textContent.trim(),
+                url: link.getAttribute("href") || ""
+            }));
 
             // Push the processed data into tableData array
             tableData.push({
-                parentName: parentName,
+                parentName: parentName || "(no parent)",
                 parentHref: parentHref,
                 bulletText: bulletText,
                 bulletHref: bulletHref,
@@ -276,9 +279,9 @@
         const thead = document.createElement("thead");
         const headerRow = document.createElement("tr");
         const filterRow = document.createElement("tr");
-        const headers = ["Parent", "Bullet", "Tags", "Date", "@s", "Backlinks"];
-        const propertyHeaders = Array.from(propertiesSet);
-        const allHeaders = headers.concat(propertyHeaders);
+        const defaultHeaders = ["Parent", "Bullet", "Tags", "Date", "@s", "Backlinks"];
+        const propertyHeaders = Array.from(propertySet);
+        const allHeaders = defaultHeaders.concat(propertyHeaders);
 
         const filterInputs = [];
 
@@ -333,7 +336,6 @@
             // Tags
             const tagsDiv = document.createElement("div");
             rowData.tags.forEach(tag => {
-                // Creating a span for each tag
                 const tagSpan = document.createElement("span");
                 tagSpan.className = "contentTag explosive";
                 tagSpan.title = `Filter #${tag}`;
@@ -355,14 +357,9 @@
 
                 // Click event to add to filter
                 tagSpan.addEventListener("click", function(event) {
-                    // On click, add the tag to the global filter
-                    const current = globalFilter.value.trim();
-                    const term = event.ctrlKey ? `!#${tag}` : `#${tag}`;
-                    if (current) {
-                        globalFilter.value = `${current}, ${term}`;
-                    } else {
-                        globalFilter.value = term;
-                    }
+                    const currentFilter = globalFilter.value.trim();
+                    const filterTerm = event.ctrlKey ? `!#${tag}` : `#${tag}`;
+                    globalFilter.value = currentFilter ? `${currentFilter}, ${filterTerm}` : filterTerm;
                     globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
                 }, false);
 
@@ -373,25 +370,21 @@
             // Date
             const dateDiv = document.createElement("div");
             if (rowData.date) {
-                const dateEl = document.createElement("time");
-                dateEl.className = "monolith-pill";
-                dateEl.textContent = rowData.date;
-                dateEl.style.color = "#666";
-                dateEl.style.cursor = "pointer";
+                const dateElement = document.createElement("time");
+                dateElement.className = "monolith-pill";
+                dateElement.textContent = rowData.date;
+                dateElement.style.color = "#666";
+                dateElement.style.cursor = "pointer";
 
                 // Click event to add date to filter
-                dateEl.addEventListener("click", function() {
-                    const current = globalFilter.value.trim();
-                    const term = rowData.date.includes('-') ? `date:${rowData.date}` : rowData.date;
-                    if (current) {
-                        globalFilter.value = `${current}, ${term}`;
-                    } else {
-                        globalFilter.value = term;
-                    }
+                dateElement.addEventListener("click", function() {
+                    const currentFilter = globalFilter.value.trim();
+                    const filterTerm = rowData.date.includes('-') ? `date:${rowData.date}` : rowData.date;
+                    globalFilter.value = currentFilter ? `${currentFilter}, ${filterTerm}` : filterTerm;
                     globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
                 }, false);
 
-                dateDiv.appendChild(dateEl);
+                dateDiv.appendChild(dateElement);
             }
             tr.appendChild(createTableCell(dateDiv));
 
@@ -399,7 +392,6 @@
             const mentionsDiv = document.createElement("div");
             rowData.mentions.split(", ").forEach(mention => {
                 if (mention) {
-                    // Creating a span for each mention
                     const mentionSpan = document.createElement("span");
                     mentionSpan.className = "contentTag explosive";
                     mentionSpan.title = `Filter @${mention}`;
@@ -421,14 +413,9 @@
 
                     // Click event to add to filter
                     mentionSpan.addEventListener("click", function(event) {
-                        // On click, add the mention to the global filter
-                        const current = globalFilter.value.trim();
-                        const term = event.ctrlKey ? `!@${mention}` : `@${mention}`;
-                        if (current) {
-                            globalFilter.value = `${current}, ${term}`;
-                        } else {
-                            globalFilter.value = term;
-                        }
+                        const currentFilter = globalFilter.value.trim();
+                        const filterTerm = event.ctrlKey ? `!@${mention}` : `@${mention}`;
+                        globalFilter.value = currentFilter ? `${currentFilter}, ${filterTerm}` : filterTerm;
                         globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
                     }, false);
 
@@ -440,14 +427,14 @@
             // Backlinks
             const backlinksDiv = document.createElement("div");
             rowData.backlinks.forEach(link => {
-                const linkEl = document.createElement("a");
-                linkEl.href = link.url;
-                linkEl.textContent = link.text;
-                linkEl.style.display = "block";
-                linkEl.style.margin = "2px 0";
-                linkEl.style.color = "blue";
-                linkEl.style.textDecoration = "underline";
-                backlinksDiv.appendChild(linkEl);
+                const linkElement = document.createElement("a");
+                linkElement.href = link.url;
+                linkElement.textContent = link.text;
+                linkElement.style.display = "block";
+                linkElement.style.margin = "2px 0";
+                linkElement.style.color = "blue";
+                linkElement.style.textDecoration = "underline";
+                backlinksDiv.appendChild(linkElement);
             });
             tr.appendChild(createTableCell(backlinksDiv));
 
@@ -464,37 +451,34 @@
         container.appendChild(table);
 
         // Hide empty columns
-        allHeaders.forEach((header, idx) => {
-            let hasData = tableData.some(row => {
-                // Check both header data and properties
-                return row[header.toLowerCase()] || row.properties[header];
-            });
+        allHeaders.forEach((header, index) => {
+            const hasData = tableData.some(row => row[header.toLowerCase()] || row.properties[header]);
             if (!hasData) {
-                if (headerRow.children[idx]) {
-                    headerRow.children[idx].style.display = "none";
+                if (headerRow.children[index]) {
+                    headerRow.children[index].style.display = "none";
                 }
-                if (filterRow.children[idx]) {
-                    filterRow.children[idx].style.display = "none";
+                if (filterRow.children[index]) {
+                    filterRow.children[index].style.display = "none";
                 }
                 tbody.querySelectorAll("tr").forEach(tr => {
-                    if (tr.children[idx]) {
-                        tr.children[idx].style.display = "none";
+                    if (tr.children[index]) {
+                        tr.children[index].style.display = "none";
                     }
                 });
             }
         });
 
-        // Append container before the selected bullet
+        // Insert the table before the selected bullet
         selectedBullet.parentNode.insertBefore(container, selectedBullet);
 
         // Sorting functionality
-        headerRow.querySelectorAll("th").forEach((th, idx) => {
+        headerRow.querySelectorAll("th").forEach((th, index) => {
             let ascending = true;
             th.onclick = function() {
                 const rows = Array.from(tbody.querySelectorAll("tr"));
                 rows.sort((a, b) => {
-                    const aText = a.children[idx].textContent.trim().toLowerCase();
-                    const bText = b.children[idx].textContent.trim().toLowerCase();
+                    const aText = a.children[index].textContent.trim().toLowerCase();
+                    const bText = b.children[index].textContent.trim().toLowerCase();
                     const aNum = parseFloat(aText);
                     const bNum = parseFloat(bText);
                     if (!isNaN(aNum) && !isNaN(bNum)) {
@@ -507,16 +491,20 @@
             };
         });
 
-        // Filtering functionality
+        /**
+         * Applies filters to the table based on input values.
+         */
         function applyFilters() {
-            const filterText = globalFilter.value.trim().toLowerCase();
-            tableData.forEach((row, rowIdx) => {
-                const tr = tbody.children[rowIdx];
+            const globalFilterValue = globalFilter.value.trim().toLowerCase();
+            tableData.forEach((row, rowIndex) => {
+                const tr = tbody.children[rowIndex];
                 let show = true;
-                if (filterText) {
+
+                // Global filter
+                if (globalFilterValue) {
                     let includes = false;
                     let excludes = false;
-                    filterText.split(",").forEach(term => {
+                    globalFilterValue.split(",").forEach(term => {
                         term = term.trim();
                         if (term.startsWith("!")) {
                             if (tr.textContent.toLowerCase().includes(term.slice(1))) {
@@ -528,17 +516,18 @@
                             }
                         }
                     });
-                    if (excludes || (!includes && filterText !== "")) {
+                    if (excludes || (!includes && globalFilterValue !== "")) {
                         show = false;
                     }
                 }
+
                 // Per-column filters
                 filterInputs.forEach((input, idx) => {
-                    const val = input.value.trim().toLowerCase();
-                    if (val) {
+                    const filterValue = input.value.trim().toLowerCase();
+                    if (filterValue) {
                         let includes = false;
                         let excludes = false;
-                        val.split(",").forEach(term => {
+                        filterValue.split(",").forEach(term => {
                             term = term.trim();
                             if (term.startsWith("!")) {
                                 if (tr.children[idx].textContent.toLowerCase().includes(term.slice(1))) {
@@ -550,11 +539,12 @@
                                 }
                             }
                         });
-                        if (excludes || (!includes && val !== "")) {
+                        if (excludes || (!includes && filterValue !== "")) {
                             show = false;
                         }
                     }
                 });
+
                 tr.style.display = show ? "" : "none";
             });
         }
