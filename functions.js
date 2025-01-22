@@ -1,15 +1,15 @@
-// workflowy-table-view.js
-
 (function(){
+    // Display messages using Workflowy's messaging system or fallback to alert
     function showMessage(msg){
         if(typeof WF !== "undefined" && WF.showMessage){
             WF.showMessage(msg);
-            setTimeout(WF.hideMessage,2000);
+            setTimeout(WF.hideMessage, 2000);
         } else {
             alert(msg);
         }
     }
 
+    // Parse tags for properties
     function parseTag(tag){
         let cleanTag = tag.replace(/^#/,"");
         if(/^[pP]\d+$/.test(cleanTag)){
@@ -22,10 +22,12 @@
         return null;
     }
 
+    // Remove tags from text
     function getTextWithoutTags(text){
         return text.replace(/#[^\s]+/g,"").trim();
     }
 
+    // Create table cell
     function createTableCell(content){
         let td = document.createElement("td");
         td.style.border = "1px solid #ccc";
@@ -37,6 +39,7 @@
         return td;
     }
 
+    // Auto-scroll to load all bullets
     function autoScroll(callback){
         let lastHeight = 0;
         let attempts = 0;
@@ -57,6 +60,7 @@
         },800);
     }
 
+    // Build the table with Workflowy's bullets
     function buildTable(){
         let selectedBullet = document.querySelector("div[projectid].project.root.selected");
         if(!selectedBullet){
@@ -274,7 +278,7 @@
             // Tags
             let tagsDiv = document.createElement("div");
             rowData.tags.forEach(tag=>{
-                let tagEl = createFilterElement(tag, `#${tag}`, 2); // Assuming 'Tags' is at index 2
+                let tagEl = createFilterElement(tag, `#${tag}`, 2); // 'Tags' column index
                 tagEl.style.margin = "2px 4px 2px 0";
                 tagsDiv.appendChild(tagEl);
             });
@@ -291,7 +295,7 @@
             // Mentions
             let mentionsDiv = document.createElement("div");
             rowData.mentions.split(", ").forEach(mention=>{
-                let mentionEl = createFilterElement(mention, `@${mention}`, 4); // Assuming '@s' is at index 4
+                let mentionEl = createFilterElement(mention, `@${mention}`, 4); // '@s' column index
                 mentionEl.style.margin = "2px 4px 2px 0";
                 mentionsDiv.appendChild(mentionEl);
             });
@@ -336,7 +340,7 @@
         // Append table to container
         container.appendChild(table);
 
-        // Append container to page
+        // Append container to page (top)
         document.body.insertBefore(container, document.body.firstChild);
 
         // Sorting functionality
@@ -385,7 +389,7 @@
                     }
                 }
                 // Per-column filters
-                S.forEach((input, idx)=>{
+                filterInputs.forEach((input, idx)=>{
                     let val = input.value.trim().toLowerCase();
                     if(val){
                         let includes = false;
@@ -412,7 +416,7 @@
         }
 
         globalFilter.oninput = applyFilters;
-        S.forEach(input=>{ input.oninput = applyFilters; });
+        filterInputs.forEach(input=>{ input.oninput = applyFilters; });
 
         // Initialize Lucide Icons
         if(window.lucide){
@@ -432,6 +436,7 @@
         window.scrollTo(0,0);
     }
 
+    // Create clickable filter elements
     function createFilterElement(text, fullText, columnIndex){
         let span = document.createElement("span");
         span.className = "contentTag explosive";
@@ -467,6 +472,7 @@
         return span;
     }
 
+    // Create clickable date elements
     function createDateElement(dateText){
         let time = document.createElement("time");
         time.className = "monolith-pill";
@@ -493,11 +499,6 @@
         autoScroll(buildTable);
     })();
 
-    // Function to initialize the bookmarklet
-    function initBookmarklet(){
-        autoScroll(buildTable);
-    }
-
     // Expose init function
-    window.initWorkflowyTableView = initBookmarklet;
+    window.initWorkflowyTableView = buildTable;
 })();
