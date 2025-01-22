@@ -172,7 +172,7 @@
 
             // Push the processed data into tableData array
             tableData.push({
-                parentName: parentName,
+                parentName: parentName || "(no parent)",
                 parentHref: parentHref,
                 bulletText: bulletText,
                 bulletHref: bulletHref,
@@ -282,7 +282,7 @@
 
         const filterInputs = [];
 
-        allHeaders.forEach((header, index) => {
+        allHeaders.forEach(header => {
             // Create header cells
             const th = document.createElement("th");
             th.textContent = header;
@@ -369,7 +369,7 @@
             tr.appendChild(createTableCell(backlinksDiv));
 
             // Special Properties
-            propertyHeaders.forEach((prop, idx) => {
+            propertyHeaders.forEach(prop => {
                 const propValue = rowData.properties[prop] || "";
                 tr.appendChild(createTableCell(propValue));
             });
@@ -382,7 +382,7 @@
 
         // Hide empty columns
         allHeaders.forEach((header, idx) => {
-            const hasData = tableData.some(row => {
+            let hasData = tableData.some(row => {
                 // Check both header data and properties
                 return row[header.toLowerCase()] || row.properties[header];
             });
@@ -539,7 +539,7 @@
         };
 
         // Append the table button next to the share button
-        shareButton.parentNode.insertBefore(tableBtn, shareButton);
+        shareButton.parentNode.insertBefore(tableBtn, shareButton.nextSibling);
 
         // Initialize Lucide Icons if not already present
         if (window.lucide) {
