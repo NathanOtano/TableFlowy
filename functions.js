@@ -172,7 +172,7 @@
 
             // Push the processed data into tableData array
             tableData.push({
-                parentName: parentName || "(no parent)",
+                parentName: parentName,
                 parentHref: parentHref,
                 bulletText: bulletText,
                 bulletHref: bulletHref,
@@ -333,15 +333,64 @@
             // Tags
             const tagsDiv = document.createElement("div");
             rowData.tags.forEach(tag => {
-                const tagEl = createFilterElement(tag, `#${tag}`, 2); // 'Tags' column index
-                tagsDiv.appendChild(tagEl);
+                // Creating a span for each tag
+                const tagSpan = document.createElement("span");
+                tagSpan.className = "contentTag explosive";
+                tagSpan.title = `Filter #${tag}`;
+                tagSpan.dataset.val = `#${tag}`;
+                tagSpan.style.color = "#666";
+                tagSpan.style.textDecoration = "underline";
+                tagSpan.style.cursor = "pointer";
+                tagSpan.style.margin = "2px 4px 2px 0";
+
+                const textSpan = document.createElement("span");
+                textSpan.className = "contentTagText";
+                textSpan.textContent = tag;
+
+                const nub = document.createElement("span");
+                nub.className = "contentTagNub";
+
+                tagSpan.appendChild(textSpan);
+                tagSpan.appendChild(nub);
+
+                // Click event to add to filter
+                tagSpan.addEventListener("click", function(event) {
+                    // On click, add the tag to the global filter
+                    const current = globalFilter.value.trim();
+                    const term = event.ctrlKey ? `!#${tag}` : `#${tag}`;
+                    if (current) {
+                        globalFilter.value = `${current}, ${term}`;
+                    } else {
+                        globalFilter.value = term;
+                    }
+                    globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
+                }, false);
+
+                tagsDiv.appendChild(tagSpan);
             });
             tr.appendChild(createTableCell(tagsDiv));
 
             // Date
             const dateDiv = document.createElement("div");
             if (rowData.date) {
-                const dateEl = createDateElement(rowData.date);
+                const dateEl = document.createElement("time");
+                dateEl.className = "monolith-pill";
+                dateEl.textContent = rowData.date;
+                dateEl.style.color = "#666";
+                dateEl.style.cursor = "pointer";
+
+                // Click event to add date to filter
+                dateEl.addEventListener("click", function() {
+                    const current = globalFilter.value.trim();
+                    const term = rowData.date.includes('-') ? `date:${rowData.date}` : rowData.date;
+                    if (current) {
+                        globalFilter.value = `${current}, ${term}`;
+                    } else {
+                        globalFilter.value = term;
+                    }
+                    globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
+                }, false);
+
                 dateDiv.appendChild(dateEl);
             }
             tr.appendChild(createTableCell(dateDiv));
@@ -349,8 +398,42 @@
             // Mentions
             const mentionsDiv = document.createElement("div");
             rowData.mentions.split(", ").forEach(mention => {
-                const mentionEl = createFilterElement(mention, `@${mention}`, 4); // '@s' column index
-                mentionsDiv.appendChild(mentionEl);
+                if (mention) {
+                    // Creating a span for each mention
+                    const mentionSpan = document.createElement("span");
+                    mentionSpan.className = "contentTag explosive";
+                    mentionSpan.title = `Filter @${mention}`;
+                    mentionSpan.dataset.val = `@${mention}`;
+                    mentionSpan.style.color = "#666";
+                    mentionSpan.style.textDecoration = "underline";
+                    mentionSpan.style.cursor = "pointer";
+                    mentionSpan.style.margin = "2px 4px 2px 0";
+
+                    const textSpan = document.createElement("span");
+                    textSpan.className = "contentTagText";
+                    textSpan.textContent = mention;
+
+                    const nub = document.createElement("span");
+                    nub.className = "contentTagNub";
+
+                    mentionSpan.appendChild(textSpan);
+                    mentionSpan.appendChild(nub);
+
+                    // Click event to add to filter
+                    mentionSpan.addEventListener("click", function(event) {
+                        // On click, add the mention to the global filter
+                        const current = globalFilter.value.trim();
+                        const term = event.ctrlKey ? `!@${mention}` : `@${mention}`;
+                        if (current) {
+                            globalFilter.value = `${current}, ${term}`;
+                        } else {
+                            globalFilter.value = term;
+                        }
+                        globalFilter.dispatchEvent(new Event("input", { bubbles: true }));
+                    }, false);
+
+                    mentionsDiv.appendChild(mentionSpan);
+                }
             });
             tr.appendChild(createTableCell(mentionsDiv));
 
@@ -401,8 +484,8 @@
             }
         });
 
-        // Append container to the top of the page
-        document.body.insertBefore(container, document.body.firstChild);
+        // Append container before the selected bullet
+        selectedBullet.parentNode.insertBefore(container, selectedBullet);
 
         // Sorting functionality
         headerRow.querySelectorAll("th").forEach((th, idx) => {
@@ -559,19 +642,12 @@
         }
     }
 
-    /**
-     * Initializes the bookmarklet by injecting the table button.
-     */
-    function initializeBookmarklet() {
-        injectTableButton();
-    }
-
-    // Automatically inject the table button when the script loads
+    // Initialize the bookmarklet by injecting the table button
     (function(){
-        initializeBookmarklet();
+        injectTableButton();
     })();
 
     // Expose the initialization function globally (optional)
-    window.initWorkflowyTableView = initializeBookmarklet;
+    window.initWorkflowyTableView = injectTableButton;
 
 })();
