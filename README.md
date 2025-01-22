@@ -19,7 +19,10 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 2. Columns:
     - Parent: Shows the parent bullet name (tags stripped), clickable to focus that parent.
     - Bullet: The bullet’s text, clickable to focus that bullet.
-    - Tags: Any leftover tags that aren’t in the property-value formats above.
+    - Date: Any date values contained within the bullet
+    - @s: Any @ type tags that are contained within the bullet
+    - Backlinks: [[Any backlinks]] contained within the bullet
+    - Tags: Any leftover #tags that aren’t in the property-value formats above.
     - One Column per Unique Property: Contains the matched value for that bullet.
 3. Sorting: Click any column header to sort ascending; click again to sort descending.
 4. Filtering:
