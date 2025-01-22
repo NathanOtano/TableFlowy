@@ -1,0 +1,1 @@
+javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/NathanOtano/TableFlowy@main/functions.js';s.onload=function(){if(typeof initWorkflowyTableView==='function'){initWorkflowyTableView();}};document.head.appendChild(s);})();
