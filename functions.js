@@ -6,6 +6,7 @@
      * @param {string} msg - The message to display.
      */
     function showMessage(msg){
+        console.log("showMessage:", msg); // Debug log
         if(typeof WF !== "undefined" && WF.showMessage){
             WF.showMessage(msg);
             setTimeout(WF.hideMessage, 2000);
@@ -157,15 +158,19 @@
      * Builds the interactive table by scanning Workflowy's bullets.
      */
     function buildTable(){
+        console.log("buildTable: Starting to build the table."); // Debug log
+
         // Select the currently selected root bullet
         let selectedBullet = document.querySelector("div[projectid].project.root.selected");
         if(!selectedBullet){
             showMessage("No root bullet found!");
+            console.warn("buildTable: No root bullet selected.");
             return;
         }
 
         // Extract the table name from the selected bullet
         let tableName = getTextWithoutTags(selectedBullet.querySelector(".innerContentContainer").textContent.trim());
+        console.log("buildTable: Table Name -", tableName); // Debug log
 
         // Select all bullets
         let bullets = document.querySelectorAll(".innerContentContainer");
@@ -174,6 +179,7 @@
 
         if(!bullets.length){
             showMessage("No bullets found!");
+            console.warn("buildTable: No bullets found.");
             return;
         }
 
@@ -254,8 +260,11 @@
             });
         });
 
+        console.log("buildTable: Processed tableData:", tableData); // Debug log
+
         if(!tableData.length){
             showMessage("No bullets with special tags found!");
+            console.warn("buildTable: No bullets with special tags.");
             return;
         }
 
@@ -450,11 +459,22 @@
 
         // Hide empty columns
         headers.forEach((header, idx)=>{
-            let hasData = tableData.some(row=>row[header.toLowerCase()] || row.properties[header]);
+            let hasData = tableData.some(row=>{
+                // Check both header data and properties
+                return row[header.toLowerCase()] || row.properties[header];
+            });
             if(!hasData){
-                headerRow.children[idx].style.display = "none";
-                filterRow.children[idx].style.display = "none";
-                tbody.querySelectorAll("tr").forEach(tr=>{ tr.children[idx].style.display = "none"; });
+                if(headerRow.children[idx]){
+                    headerRow.children[idx].style.display = "none";
+                }
+                if(filterRow.children[idx]){
+                    filterRow.children[idx].style.display = "none";
+                }
+                tbody.querySelectorAll("tr").forEach(tr=>{
+                    if(tr.children[idx]){
+                        tr.children[idx].style.display = "none";
+                    }
+                });
             }
         });
 
@@ -542,18 +562,25 @@
         // Initialize Lucide Icons
         if(window.lucide){
             lucide.createIcons();
+            console.log("buildTable: Lucide icons initialized.");
         } else {
             let script = document.createElement("script");
             script.src = "https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js";
             script.onload = function(){
                 if(window.lucide){
                     lucide.createIcons();
+                    console.log("buildTable: Lucide icons loaded and initialized.");
                 }
             };
+            script.onerror = function(){
+                console.error("buildTable: Failed to load Lucide icons.");
+            };
             document.head.appendChild(script);
+            console.log("buildTable: Loading Lucide icons...");
         }
 
         showMessage("Done! Table built at top.");
+        console.log("buildTable: Table successfully built.");
         window.scrollTo(0,0);
     }
 
@@ -561,23 +588,31 @@
      * Injects the table button into Workflowy's interface.
      */
     function injectTableButton(){
+        console.log("injectTableButton: Attempting to inject table button."); // Debug log
+
         // Remove existing table button if present to prevent duplicates
         let existingButton = document.querySelector(".headerTableButton");
         if(existingButton){
             existingButton.remove();
+            console.log("injectTableButton: Existing table button removed.");
         }
 
         // Find the share button to position the table button next to it
-        let shareButton = document.querySelector('.headerShareButton._3hmsj.iconButton.lg.shape-circle[data-handbook="sharing.share"]');
+        let shareButton = document.querySelector('.headerShareButton[data-handbook="sharing.share"]');
         if(!shareButton){
-            showMessage("Share button not found - cannot insert table icon.");
+            console.warn("injectTableButton: Share button not found. Retrying in 1 second...");
+            // Retry after a delay if the share button isn't found yet
+            setTimeout(injectTableButton, 1000);
             return;
         }
+
+        console.log("injectTableButton: Share button found."); // Debug log
 
         // Create the table button
         let tableBtn = document.createElement("div");
         tableBtn.className = "headerTableButton _3hmsj iconButton lg shape-circle";
         tableBtn.style.cursor = "pointer";
+        tableBtn.style.marginLeft = "10px"; // Adjust spacing as needed
         tableBtn.innerHTML = '<i data-lucide="table-properties" size="16" stroke-width="1"></i>';
 
         // Click event to toggle table visibility or create a new table
@@ -589,27 +624,36 @@
                     tbl.style.display = tbl.style.display === "none" ? "flex" : "none";
                 });
                 showMessage(tables[0].style.display !== "none" ? "All tables shown" : "All tables hidden");
+                console.log("injectTableButton: Toggled table visibility.");
             } else {
                 // If no tables, build one
+                console.log("injectTableButton: Building new table.");
                 autoScroll(buildTable);
             }
         };
 
         // Append the table button next to the share button
-        shareButton.parentNode.insertBefore(tableBtn, shareButton);
+        shareButton.parentNode.insertBefore(tableBtn, shareButton.nextSibling);
+        console.log("injectTableButton: Table button injected.");
 
         // Initialize Lucide Icons if not already present
         if(window.lucide){
             lucide.createIcons();
+            console.log("injectTableButton: Lucide icons initialized.");
         } else {
             let script = document.createElement("script");
             script.src = "https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js";
             script.onload = function(){
                 if(window.lucide){
                     lucide.createIcons();
+                    console.log("injectTableButton: Lucide icons loaded and initialized.");
                 }
             };
+            script.onerror = function(){
+                console.error("injectTableButton: Failed to load Lucide icons.");
+            };
             document.head.appendChild(script);
+            console.log("injectTableButton: Loading Lucide icons...");
         }
     }
 
@@ -617,11 +661,13 @@
      * Initializes the bookmarklet by injecting the table button.
      */
     function initializeBookmarklet(){
+        console.log("initializeBookmarklet: Initializing bookmarklet.");
         injectTableButton();
     }
 
     // Automatically inject the table button when the script loads
     (function(){
+        console.log("Script loaded. Starting initialization.");
         initializeBookmarklet();
     })();
 
