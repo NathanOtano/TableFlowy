@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/c61375d1-f86b-45f3-8fd9-3cebbfbbbdae
 
 1. Create a new bookmark in your browser (Chrome, Firefox, Edge, Safari, etc.).
 2. Open the bookmark’s “Edit” or “Properties” to change its URL/location.
-3. Paste the entire [JavaScript snippet](https://github.com/NathanOtano/TableFlowy/blob/main/Bookmarlet_JS_Snippet) (including `javascript:`) in place of the URL.
+3. Paste the entire [JavaScript snippet](Bookmarlet_JS_Snippet) (including `javascript:`) in place of the URL.
 4. Name the bookmark something like: “TableFlowy”
 5. Click this bookmark while on a Workflowy page to trigger it.
 
